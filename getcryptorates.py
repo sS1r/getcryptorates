@@ -10,6 +10,7 @@ from apiCG import apiCG
 
 import datetime
 import configparser
+import os
 
 API_ROOT_URL = "https://api.coingecko.com/api/v3/"
 CONFIG_FILE = "getcryptorates.ini"
@@ -20,7 +21,8 @@ if api.server_up():
 	
 	# Parse config
 	config = configparser.ConfigParser()
-	config.read(CONFIG_FILE)
+	conffile = os.path.join(os.path.dirname(os.path.abspath(__file__)), CONFIG_FILE)
+	config.read(conffile)
 	coins = config["settings"]["coins"].split(",")
 	coins = [c.strip() for c in coins]
 	currencies = config["settings"]["currencies"].split(",")
