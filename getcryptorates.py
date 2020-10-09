@@ -9,15 +9,25 @@ LICENSE: If you find this code, do whatever the fuck you want with it
 from apiCG import apiCG
 
 import datetime
+import configparser
 
 API_ROOT_URL = "https://api.coingecko.com/api/v3/"
-COINS_REQUESTED = ["btc", "eth", "ltc"]
-TARGET_CURRENCIES = ["eur", "usd"]
+CONFIG_FILE = "getcryptorates.ini"
 
 api = apiCG(API_ROOT_URL)
 
 if api.server_up():
-	api.send_request(COINS_REQUESTED, TARGET_CURRENCIES)
+	
+	# Parse config
+	config = configparser.ConfigParser()
+	config.read(CONFIG_FILE)
+	coins = config["settings"]["coins"].split(",")
+	coins = [c.strip() for c in coins]
+	currencies = config["settings"]["currencies"].split(",")
+	currencies = [c.strip() for c in currencies]
+	
+	# Send request and print output
+	api.send_request(coins, currencies)
 	output = api.get_output_str()
 	currentime = datetime.datetime.now().replace(microsecond=0)
 	print("Cryptocurrency rates (" +  currentime.isoformat(sep=" ") + "):")
