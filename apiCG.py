@@ -12,7 +12,6 @@ class apiCG(cryptoAPI):
 	def __init__(self, url):
 		cryptoAPI.__init__(self, url)
 		self.coin_id_table = {"eth" : "ethereum", "btc" : "bitcoin", "ltc" : "litecoin"}
-		self.curr_id_table = {"eur" : "eur", "usd" : "usd"}
 		self.default_curr = "eur"
 		
 	def server_up(self):
@@ -21,20 +20,22 @@ class apiCG(cryptoAPI):
 		resp = requests.get(url=url, headers=headers)
 		return resp.status_code == 200
 	
-	def send_request(self, coins, output_currency):
+	def send_request(self, coins, output_currencies):
 		url = self.url + "/simple/price"
 		headers = {"accept" : "application/json"}
 		params = {}
 		
-		# Resolve correct ID for output currency
-		if output_currency in self.curr_id_table.keys():
-			output_curr_str = self.curr_id_table[output_currency]
-			self.output_curr = output_currency
+		# Construct output currencies string
+		output_curr_str = ""
+		if type(output_currencies) is list:
+			for c in output_currencies:
+				output_curr_str += c
+				output_curr_str += ","
+			output_curr_str = output_curr_str[:-1]
 		else:
-			output_curr_str = self.curr_id_table[self.default_curr]
-			self.output_curr = self.default_curr
+			output_curr_str = self.default_curr
 			
-		# Resolve correct IDs for coins
+		# Construct ID string for coins
 		idstr = ""
 		for c in coins:
 			if c in self.coin_id_table.keys():
@@ -42,6 +43,7 @@ class apiCG(cryptoAPI):
 				idstr += ","
 		idstr = idstr[:-1] # Remove last comma
 		
+		# Send the query
 		params = {"ids" : idstr, "vs_currencies" : output_curr_str}
 		resp = requests.get(url=url, headers=headers, params=params)
 		
@@ -49,10 +51,9 @@ class apiCG(cryptoAPI):
 		json_data = resp.json()
 		reverse_coin_table = {v : k for k, v in self.coin_id_table.items()}
 		self.data = {}
-		for id, val in json_data.items():
+		for id, prices in json_data.items():
 			if id in reverse_coin_table.keys():
 				coin_id = reverse_coin_table[id]
-				price = val[output_curr_str]
-				self.data[coin_id] = str(price)
+				self.data[coin_id] = prices
 		
 		self.ready = True

@@ -12,13 +12,14 @@ class cryptoAPI(abc.ABC):
 		self.url = url
 		self.ready = False
 		self.data = {}
-		self.output_curr = ""
 	
 	def get_output_str(self):
 		output = ""
 		if self.ready:
-			for curr, rate in self.data.items():
-				line = "1 " + curr + " = " + str(rate) + self.output_curr
+			for coin, rates in self.data.items():
+				line = "1 " + coin
+				for curr, rate in rates.items():
+					line += " = " + str(rate) + " " + curr
 				output += line + "\n"
 		return output
 		
@@ -27,6 +28,6 @@ class cryptoAPI(abc.ABC):
 		pass
 	
 	# Abstract
-	def send_request(self, coins, output_currency):
+	def send_request(self, coins, output_currencies):
 		pass
 		
