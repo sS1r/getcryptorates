@@ -16,7 +16,8 @@ class cryptoAPI(abc.ABC):
 	def get_output_str(self):
 		output = ""
 		if self.ready:
-			for coin, rates in self.data.items():
+			for coin in sorted(self.data.keys()):
+				rates = self.data[coin]
 				line = "1 " + coin
 				for curr, rate in rates.items():
 					line += " = " + str(rate) + " " + curr

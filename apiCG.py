@@ -11,7 +11,7 @@ class apiCG(cryptoAPI):
 	
 	def __init__(self, url):
 		cryptoAPI.__init__(self, url)
-		self.coin_id_table = {"eth" : "ethereum", "btc" : "bitcoin", "ltc" : "litecoin", "bnb" : "binancecoin"}
+		self.coin_id_table = {"eth" : "ethereum", "btc" : "bitcoin", "ltc" : "litecoin", "bnb" : "binancecoin", "bch" : "bitcoin-cash"}
 		self.default_curr = "eur"
 		
 	def server_up(self):
