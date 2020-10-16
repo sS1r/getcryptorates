@@ -23,11 +23,11 @@ def main():
 
 	# Parse arguments
 	parser = argparse.ArgumentParser(description='Get crypto rates')
-	parser.add_argument('--coin',     action='store', type=str,   nargs='?', default='btc',   help='Coin to monitor')
-	parser.add_argument('--currency', action='store', type=str,   nargs='?', default='usd',   help='Currency to monitor')
-	parser.add_argument('--limit',    action='store', type=float, nargs='?', default=15000.0, help='Exchange rate which triggers the alert')
-	parser.add_argument('--trigtype', action='store', type=str,   nargs='?', default='above', help='Trigger type (above or below)')
-	parser.add_argument('--pollrate', action='store', type=float, nargs='?', default=30.0,    help='Server poll rate (polls / minute)')
+	parser.add_argument('--coin',        action='store', type=str,   nargs='?', default='btc',   help='Coin to monitor')
+	parser.add_argument('--currency',    action='store', type=str,   nargs='?', default='usd',   help='Currency to monitor')
+	parser.add_argument('--limit_above', action='store', type=float, nargs='?', default=-1,      help='Alert is triggered if the rate gets above this value')
+	parser.add_argument('--limit_below', action='store', type=float, nargs='?', default=-1,      help='Alert is triggered if the rate gets below this value')
+	parser.add_argument('--pollrate',    action='store', type=float, nargs='?', default=30.0,    help='Server poll rate (polls / minute)')
 	args = parser.parse_args()
 
 	api = apiCG(API_ROOT_URL)
@@ -50,18 +50,24 @@ def main():
 			
 			# Determine if the trigger occured
 			triggered = False
-			if args.trigtype == 'above' and rate > args.limit:
+			if args.limit_above > 0 and rate > args.limit_above:
 				triggered = True
-			elif args.trigtype == 'below' and rate < args.limit:
+			elif args.limit_below > 0 and rate < args.limit_below:
 				triggered = True
-			
+				
 			# Set alert
 			if triggered:
 				if time.time() - alert_time > ALERT_PERIOD:
 					alert_time = time.time()
 					unit = args.currency + "/" + args.coin
 					msg = "Exchange rate: " + str(rate) + " " + unit + "\n"
-					msg += "Limit set to " + str(args.limit) + " " + unit
+					msg += "Limit set to "
+					if args.limit_below > 0:
+						msg += "R < " + str(args.limit_below)
+					if args.limit_below > 0 and args.limit_above > 0:
+						msg += " OR "
+					if args.limit_above > 0:
+						msg += "R > " + str(args.limit_above)
 					notification.notify(title='Crypto monitor alert', message=msg, app_name='monitorcrypto.py')
 		else:
 			print("Data not available")
