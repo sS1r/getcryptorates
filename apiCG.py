@@ -46,6 +46,8 @@ class apiCG(cryptoAPI):
 		# Send the query
 		params = {"ids" : idstr, "vs_currencies" : output_curr_str}
 		resp = requests.get(url=url, headers=headers, params=params)
+		if resp.status_code != 200:
+			return False
 		
 		# Parse JSON content
 		json_data = resp.json()
@@ -57,3 +59,4 @@ class apiCG(cryptoAPI):
 				self.data[coin_id] = prices
 		
 		self.ready = True
+		return True

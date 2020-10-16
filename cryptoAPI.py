@@ -23,7 +23,13 @@ class cryptoAPI(abc.ABC):
 					line += " = " + str(rate) + " " + curr
 				output += line + "\n"
 		return output
-		
+	
+	def get_rate(self, coin, currency):
+		if self.data:
+			if coin in self.data.keys():
+				if currency in self.data[coin].keys():
+					return self.data[coin][currency]
+	
 	# Abstract
 	def server_up(self):
 		pass
